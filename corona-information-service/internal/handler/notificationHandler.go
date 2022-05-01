@@ -16,8 +16,8 @@ func NotificationHandler() func(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error in registering webhook", http.StatusInternalServerError)
 				return
 			}
-			w.WriteHeader(http.StatusCreated)
-			customjson.Encode(w, response)
+
+			customjson.Encode(w, response, http.StatusCreated)
 		}
 
 		if r.Method == http.MethodGet || r.Method == http.MethodDelete {
@@ -69,7 +69,7 @@ func encodeAllWebhooks(w http.ResponseWriter) {
 		return
 	}
 
-	customjson.Encode(w, webhooks)
+	customjson.Encode(w, webhooks, 0)
 }
 
 // encodeSingleWebhook encodes a single webhook specified by id
@@ -79,7 +79,7 @@ func encodeSingleWebhook(w http.ResponseWriter, id string) {
 		http.Error(w, "Unable to locate webhook in database", http.StatusNotFound)
 		return
 	}
-	customjson.Encode(w, wh)
+	customjson.Encode(w, wh, 0)
 }
 
 // encodeWebhookDeletionResponse deletes webhook and encodes a response
@@ -91,5 +91,5 @@ func encodeWebhookDeletionResponse(w http.ResponseWriter, id string) {
 	}
 	response := make(map[string]string, 1)
 	response["result"] = "The webhook has been successfully removed from the database!"
-	customjson.Encode(w, response)
+	customjson.Encode(w, response, 0)
 }

@@ -45,7 +45,7 @@ func PolicyHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *
 		//Checks if policy with given date and alpha3 exists in cache, If it exists, it gets encoded
 		if cachedP := cache.GetNestedMap(policies, cc, date); cachedP != nil {
 			runWebhookRoutine(cachedP.(*model.Policy).Name)
-			customjson.Encode(w, cachedP)
+			customjson.Encode(w, cachedP, 0)
 			return
 		}
 
@@ -73,7 +73,7 @@ func PolicyHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *
 		runWebhookRoutine(cc)
 
 		//Encodes struct
-		customjson.Encode(w, p)
+		customjson.Encode(w, p, 0)
 	}
 }
 

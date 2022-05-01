@@ -54,7 +54,7 @@ func CaseHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *ht
 					_ = webhook.RunWebhookRoutine(country)
 				}
 			}()
-			customjson.Encode(w, c)
+			customjson.Encode(w, c, 0)
 			return
 		}
 
@@ -95,7 +95,7 @@ func CaseHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *ht
 		cache.Put(cases, c.Country, c)
 
 		//Encode case data
-		customjson.Encode(w, c)
+		customjson.Encode(w, c, 0)
 	}
 }
 
