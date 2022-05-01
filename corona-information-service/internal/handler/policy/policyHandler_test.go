@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 )
 
 var endpoint *httptest.Server
@@ -35,7 +36,7 @@ func TestPolicyHandler(t *testing.T) {
 			})),
 			response: &model.Policy{
 				CountryCode: "NOR",
-				Scope:       "2022-04-07",
+				Scope:       time.Now().Format("2006-01-02"), // Will use today's date
 				Stringency:  -1,
 				Policies:    0,
 			},
