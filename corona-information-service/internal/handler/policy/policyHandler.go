@@ -50,7 +50,7 @@ func PolicyHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *
 		}
 
 		//URL TO INVOKE
-		url := fmt.Sprintf("%s%s/%s", model.STRINGENCY_URL, cc, date)
+		url := fmt.Sprintf(model.STRINGENCY_URL, cc, date)
 
 		//Issues request, gets response
 		res, err := customhttp.IssueRequest(client, http.MethodGet, url, nil) //returns response
