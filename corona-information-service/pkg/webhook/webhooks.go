@@ -79,13 +79,22 @@ func DeleteWebhook(webhookId string) (bool, error) {
 }
 
 // RegisterWebhook registers a new webhook, and adds it to firestore
-func RegisterWebhook(r *http.Request) (map[string]string, error) {
+func RegisterWebhook(r *http.Request) (map[string]string, int, error) {
 	var webhook model.Webhook
+	var response = make(map[string]string, 1)
 
 	//decode post request into webhook body
 	err := customjson.Decode(r, &webhook)
 	if err != nil {
-		return map[string]string{}, err
+		return map[string]string{}, http.StatusInternalServerError, err
+	}
+
+	//Check for duplicates
+	for _, wh := range webhooks {
+		if wh.Url == webhook.Url && wh.Country == webhook.Country {
+			response["message"] = "There already exists a webhook with url: " + webhook.Url + " and country: " + webhook.Country
+			return response, http.StatusConflict, nil
+		}
 	}
 
 	//checks if alpha3 code was used as param for country
@@ -94,7 +103,7 @@ func RegisterWebhook(r *http.Request) (map[string]string, error) {
 		//gets country name from restcountries api
 		country, err := api.GetCountryNameByAlphaCode(webhook.Country)
 		if err != nil {
-			return map[string]string{}, err
+			return map[string]string{}, http.StatusInternalServerError, err
 		}
 		webhook.Country = country
 	}
@@ -106,15 +115,13 @@ func RegisterWebhook(r *http.Request) (map[string]string, error) {
 	//Adds webhook to database
 	err = db.AddToFirestore(hash.Hash(COLLECTION), hash.Hash(id), webhook)
 	if err != nil {
-		return map[string]string{}, err
+		return map[string]string{}, http.StatusInternalServerError, err
 	}
 	webhooks = append(webhooks, webhook)
 
-	//Respond with ID
-	var response = make(map[string]string, 1)
 	response["id"] = id
 
-	return response, nil
+	return response, http.StatusCreated, nil
 }
 
 // RunWebhookRoutine runs webhook routine for all webhooks

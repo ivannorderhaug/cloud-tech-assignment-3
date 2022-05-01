@@ -62,7 +62,7 @@ func StatusHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *
 			Uptime:        fmt.Sprintf("%d s", int(getUptime().Seconds())),
 		}
 
-		customjson.Encode(w, &status)
+		customjson.Encode(w, &status, 0)
 
 	}
 }
