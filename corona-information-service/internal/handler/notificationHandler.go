@@ -16,6 +16,7 @@ func NotificationHandler() func(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error in registering webhook", http.StatusInternalServerError)
 				return
 			}
+			w.WriteHeader(http.StatusCreated)
 			customjson.Encode(w, response)
 		}
 

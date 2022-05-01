@@ -122,7 +122,7 @@ func getCountry(r *http.Request) (string, error, int) {
 	if strings.ToLower(country) == "us" || strings.ToLower(country) == "usa" {
 		country = strings.TrimSuffix(strings.ToLower(country), "a")
 		country = strings.ToUpper(country)
-		return country, nil, 0
+		return country, nil, http.StatusOK
 	}
 
 	//Gets country name if user input is alpha3 code
@@ -140,7 +140,7 @@ func getCountry(r *http.Request) (string, error, int) {
 		country = strings.Title(strings.ToLower(country))
 	}
 
-	return country, nil, 0
+	return country, nil, http.StatusOK
 }
 
 //Purges cache every 8 hours as the external case API is updated three times a day
