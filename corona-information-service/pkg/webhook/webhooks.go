@@ -8,8 +8,10 @@ import (
 	"corona-information-service/pkg/db"
 	"corona-information-service/tools/hash"
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -87,7 +89,8 @@ func RegisterWebhook(r *http.Request) (map[string]string, error) {
 	}
 
 	//checks if alpha3 code was used as param for country
-	if len(webhook.Country) == 3 {
+	if len(webhook.Country) == 3 && strings.ToLower(webhook.Country) != "usa" {
+		fmt.Println(webhook.Country)
 		//gets country name from restcountries api
 		country, err := api.GetCountryNameByAlphaCode(webhook.Country)
 		if err != nil {

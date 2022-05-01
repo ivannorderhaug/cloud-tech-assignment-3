@@ -46,7 +46,13 @@ func CaseHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *ht
 		if c := cache.Get(cases, country); c != nil {
 			//Failed webhook routine doesn't need error handling
 			go func() {
-				_ = webhook.RunWebhookRoutine(country)
+				if strings.ToLower(country) == "us" {
+					fmt.Println(country)
+					_ = webhook.RunWebhookRoutine(country + "A") // Handle US edge case
+					_ = webhook.RunWebhookRoutine(country)
+				} else {
+					_ = webhook.RunWebhookRoutine(country)
+				}
 			}()
 			customjson.Encode(w, c)
 			return
@@ -76,7 +82,13 @@ func CaseHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *ht
 		//Runs webhook routine on a different thread
 		//Failed webhook routine doesn't need error handling
 		go func() {
-			_ = webhook.RunWebhookRoutine(c.Country)
+			if strings.ToLower(c.Country) == "us" {
+				fmt.Println(c.Country)
+				_ = webhook.RunWebhookRoutine(c.Country + "A") // Handle US edge case
+				_ = webhook.RunWebhookRoutine(c.Country)
+			} else {
+				_ = webhook.RunWebhookRoutine(c.Country)
+			}
 		}()
 
 		//At this point, it is clear that the case data does not exist in the cache, therefore add it to the cache
@@ -106,6 +118,13 @@ func getCountry(r *http.Request) (string, error, int) {
 	//Handle spaces
 	country := path[0]
 
+	//Handle US edge case
+	if strings.ToLower(country) == "us" || strings.ToLower(country) == "usa" {
+		country = strings.TrimSuffix(strings.ToLower(country), "a")
+		country = strings.ToUpper(country)
+		return country, nil, 0
+	}
+
 	//Gets country name if user input is alpha3 code
 	if len(country) == 3 {
 		alpha3ToCountry, err := api.GetCountryNameByAlphaCode(country)
@@ -119,11 +138,6 @@ func getCountry(r *http.Request) (string, error, int) {
 	//if there are multiple words then the first letter will be uppercase in each word
 	if count < 2 {
 		country = strings.Title(strings.ToLower(country))
-	}
-
-	//Handle US edge case
-	if len(country) == 2 {
-		country = strings.ToUpper(country)
 	}
 
 	return country, nil, 0
