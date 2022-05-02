@@ -74,12 +74,9 @@ func GetSingleDocumentFromFirestore(collectionName string, documentID string) (*
 }
 
 // DeleteSingleDocumentFromFirestore Method to delete a single document from a collection by using the doc id
-func DeleteSingleDocumentFromFirestore(collectionName string, documentID string) error {
-	_, err := client.Collection(collectionName).Doc(documentID).Delete(ctx)
-	if err != nil {
-		return err
-	}
-	return nil
+func DeleteSingleDocumentFromFirestore(collectionName string, documentID string) {
+	//Doesn't need error handling.
+	_, _ = client.Collection(collectionName).Doc(documentID).Delete(ctx)
 }
 
 // UpdateDocument updates a document in the firestore database.

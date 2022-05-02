@@ -74,8 +74,8 @@ func encodeAllWebhooks(w http.ResponseWriter) {
 
 // encodeSingleWebhook encodes a single webhook specified by id
 func encodeSingleWebhook(w http.ResponseWriter, id string) {
-	wh, found := webhook.GetWebhook(id)
-	if !found {
+	wh, err := webhook.GetWebhook(id)
+	if err != nil {
 		http.Error(w, "Unable to locate webhook in database", http.StatusNotFound)
 		return
 	}
@@ -84,9 +84,9 @@ func encodeSingleWebhook(w http.ResponseWriter, id string) {
 
 // encodeWebhookDeletionResponse deletes webhook and encodes a response
 func encodeWebhookDeletionResponse(w http.ResponseWriter, id string) {
-	deleted, err := webhook.DeleteWebhook(id)
-	if err != nil || !deleted {
-		http.Error(w, "Error removing webhook from database. it might not exist", http.StatusInternalServerError)
+	deleted := webhook.DeleteWebhook(id)
+	if !deleted {
+		http.Error(w, "Error removing webhook from database. it does not exist", http.StatusBadRequest)
 		return
 	}
 	response := make(map[string]string, 1)

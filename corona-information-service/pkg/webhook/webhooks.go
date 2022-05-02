@@ -18,24 +18,21 @@ import (
 // COLLECTION can be changed
 var COLLECTION = "notifications"
 
-var webhooks []model.Webhook
-
-// InitializeWebhooks retrieves all the webhooks from firestore
-func InitializeWebhooks() {
-	_, err := GetAllWebhooks()
-	if err != nil {
-		return
-	}
-}
-
 // GetWebhook gets single webhook from local slice of webhooks
-func GetWebhook(webhookId string) (model.Webhook, bool) {
-	for _, wh := range webhooks {
-		if wh.ID == webhookId {
-			return wh, true
-		}
+func GetWebhook(webhookId string) (model.Webhook, error) {
+	docSnap, err := db.GetSingleDocumentFromFirestore(hash.Hash(COLLECTION), hash.Hash(webhookId))
+	if err != nil {
+		return model.Webhook{}, err
 	}
-	return model.Webhook{}, false
+
+	var wh model.Webhook
+
+	err = docSnap.DataTo(&wh)
+	if err != nil {
+		return model.Webhook{}, err
+	}
+
+	return wh, nil
 }
 
 // GetAllWebhooks retrieves all the webhooks from firestore
@@ -44,7 +41,7 @@ func GetAllWebhooks() ([]model.Webhook, error) {
 	if err != nil {
 		return []model.Webhook{}, err
 	}
-	webhooks = make([]model.Webhook, 0)
+	webhooks := make([]model.Webhook, 0)
 	//Converts each document snapshot into a webhook interface and adds it to the global webhooks slice
 	for _, documentSnapshot := range documentsFromFirestore {
 		var webhook model.Webhook
@@ -58,24 +55,16 @@ func GetAllWebhooks() ([]model.Webhook, error) {
 }
 
 // DeleteWebhook deletes webhook locally and then from firestore
-func DeleteWebhook(webhookId string) (bool, error) {
-	var deleted = false
-	if len(webhooks) != 0 {
-		for i, wh := range webhooks {
-			if wh.ID == webhookId {
-				copy(webhooks[i:], webhooks[i+1:])          // Shift webhooks[i+1:] left one index.
-				webhooks[len(webhooks)-1] = model.Webhook{} // Erase last element.
-				webhooks = webhooks[:len(webhooks)-1]
-				deleted = true
-			}
+func DeleteWebhook(webhookId string) bool {
+
+	webhooks, _ := GetAllWebhooks()
+	for _, wh := range webhooks {
+		if wh.ID == webhookId {
+			db.DeleteSingleDocumentFromFirestore(hash.Hash(COLLECTION), hash.Hash(webhookId))
+			return true
 		}
 	}
-
-	if err := db.DeleteSingleDocumentFromFirestore(hash.Hash(COLLECTION), hash.Hash(webhookId)); err != nil {
-		return false, err
-	}
-
-	return deleted, nil
+	return false
 }
 
 // RegisterWebhook registers a new webhook, and adds it to firestore
@@ -88,6 +77,8 @@ func RegisterWebhook(r *http.Request) (map[string]string, int, error) {
 	if err != nil {
 		return map[string]string{}, http.StatusInternalServerError, err
 	}
+
+	webhooks, _ := GetAllWebhooks()
 
 	//Check for duplicates
 	for _, wh := range webhooks {
@@ -126,6 +117,7 @@ func RegisterWebhook(r *http.Request) (map[string]string, int, error) {
 
 // RunWebhookRoutine runs webhook routine for all webhooks
 func RunWebhookRoutine(country string) error {
+	webhooks, _ := GetAllWebhooks()
 	for i, webhook := range webhooks {
 		if webhook.Country == country {
 
