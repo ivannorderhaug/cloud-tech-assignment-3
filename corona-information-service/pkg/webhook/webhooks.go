@@ -16,7 +16,7 @@ import (
 )
 
 // COLLECTION can be changed
-const COLLECTION = "notifications"
+var COLLECTION = "notifications"
 
 var webhooks []model.Webhook
 
