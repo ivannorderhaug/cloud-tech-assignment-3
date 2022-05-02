@@ -48,10 +48,10 @@ func CaseHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *ht
 			go func() {
 				if strings.ToLower(country) == "us" {
 					fmt.Println(country)
-					_ = webhook.RunWebhookRoutine(country + "A") // Handle US edge case
-					_ = webhook.RunWebhookRoutine(country)
+					webhook.RunWebhookRoutine(country + "A") // Handle US edge case
+					webhook.RunWebhookRoutine(country)
 				} else {
-					_ = webhook.RunWebhookRoutine(country)
+					webhook.RunWebhookRoutine(country)
 				}
 			}()
 			customjson.Encode(w, c, 0)
@@ -83,11 +83,10 @@ func CaseHandler(client customhttp.HTTPClient) func(w http.ResponseWriter, r *ht
 		//Failed webhook routine doesn't need error handling
 		go func() {
 			if strings.ToLower(c.Country) == "us" {
-				fmt.Println(c.Country)
-				_ = webhook.RunWebhookRoutine(c.Country + "A") // Handle US edge case
-				_ = webhook.RunWebhookRoutine(c.Country)
+				webhook.RunWebhookRoutine(c.Country + "A") // Handle US edge case
+				webhook.RunWebhookRoutine(c.Country)
 			} else {
-				_ = webhook.RunWebhookRoutine(c.Country)
+				webhook.RunWebhookRoutine(c.Country)
 			}
 		}()
 

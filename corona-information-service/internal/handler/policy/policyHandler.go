@@ -163,7 +163,7 @@ func getCountryCode(r *http.Request) (string, error, int) {
 //runWebhookRoutine runs a webhook routine
 func runWebhookRoutine(country string) {
 	go func() {
-		_ = webhook.RunWebhookRoutine(country)
+		webhook.RunWebhookRoutine(country)
 	}()
 }
 

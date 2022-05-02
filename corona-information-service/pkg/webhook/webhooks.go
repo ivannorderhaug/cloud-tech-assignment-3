@@ -116,7 +116,13 @@ func RegisterWebhook(r *http.Request) (map[string]string, int, error) {
 }
 
 // RunWebhookRoutine runs webhook routine for all webhooks
-func RunWebhookRoutine(country string) error {
+func RunWebhookRoutine(country string) {
+	//Handles ugly segmentation error that we get when there is no firestore connection
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
 	webhooks, _ := GetAllWebhooks()
 	for i, webhook := range webhooks {
 		if webhook.Country == country {
@@ -127,20 +133,13 @@ func RunWebhookRoutine(country string) error {
 			webhooks[i].ActualCalls = webhook.ActualCalls
 
 			//Updates webhook in db
-			err := db.UpdateDocument(hash.Hash(COLLECTION), hash.Hash(webhook.ID), "actual_calls", webhook.ActualCalls)
-			if err != nil {
-				return err
-			}
+			_ = db.UpdateDocument(hash.Hash(COLLECTION), hash.Hash(webhook.ID), "actual_calls", webhook.ActualCalls)
 
 			if webhook.ActualCalls >= webhook.Calls {
 				webhook.ActualCalls = 0
 
 				//Updates webhook in db
-				err = db.UpdateDocument(hash.Hash(COLLECTION), hash.Hash(webhook.ID), "actual_calls", webhook.ActualCalls)
-				if err != nil {
-					return err
-				}
-
+				_ = db.UpdateDocument(hash.Hash(COLLECTION), hash.Hash(webhook.ID), "actual_calls", webhook.ActualCalls)
 				//Updates webhook in memory
 				webhooks[i].ActualCalls = webhook.ActualCalls
 
@@ -151,7 +150,6 @@ func RunWebhookRoutine(country string) error {
 
 		}
 	}
-	return nil
 }
 
 // autoId Randomly generated a 15 character long string
