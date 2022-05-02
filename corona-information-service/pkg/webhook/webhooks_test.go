@@ -134,3 +134,32 @@ func TestRegisterWebhook(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteWebhook(t *testing.T) {
+	type args struct {
+		webhookId string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "delete-existing-webhook",
+			args: args{webhookId: "Nor"},
+			want: true,
+		},
+		{
+			name: "delete-non-existing-webhook",
+			args: args{webhookId: "test"},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := DeleteWebhook(tt.args.webhookId); got != tt.want {
+				t.Errorf("DeleteWebhook() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
