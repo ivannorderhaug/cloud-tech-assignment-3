@@ -132,7 +132,7 @@ func RunWebhookRoutine(country string) error {
 				return err
 			}
 
-			if webhook.ActualCalls == webhook.Calls {
+			if webhook.ActualCalls >= webhook.Calls {
 				webhook.ActualCalls = 0
 
 				//Updates webhook in db
