@@ -5,6 +5,8 @@
 *  Active policies: in issue [#41](https://git.gvk.idi.ntnu.no/course/prog2005/prog2005-2022/-/issues/41) it is stated that: 
 `The response is the simple variant - the number of active policies returned, nothing else.` I interpret this as all the policies that gets returned, count as active. Even though some of them have "no measures" as value in the `policy_value_display_field`
 
+*  Caching: I assumed that caching should happen locally in runtime to reduce requests to third-party services, including firestore. That is why webhooks are the only entities affected by persistence. It is however, extremely doable to cache in firestore and I could easily implement it for this project.  
+
 ## Overview
 
 ### Project structure
