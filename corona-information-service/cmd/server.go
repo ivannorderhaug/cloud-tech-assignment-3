@@ -29,7 +29,7 @@ func main() {
 	}
 
 	//Initializes firestore client, if it fails then the API should still work, but without notifications/webhooks
-	err := db.InitializeFirestore()
+	err := db.InitializeFirestore("./service-account.json")
 	if err == nil {
 		webhook.InitializeWebhooks()
 		http.HandleFunc(model.NOTIFICATION_PATH, handler.NotificationHandler())

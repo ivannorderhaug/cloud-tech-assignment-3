@@ -14,11 +14,11 @@ var client *firestore.Client
 const DELETE = "DELETE"
 
 // InitializeFirestore Method for initializing the firestore client */
-func InitializeFirestore() error {
+func InitializeFirestore(path string) error {
 	// Firebase initialisation
 	ctx = context.Background()
 
-	sa := option.WithCredentialsFile("./service-account.json")
+	sa := option.WithCredentialsFile(path)
 	app, err := firebase.NewApp(ctx, nil, sa)
 	if err != nil {
 		return err
